@@ -10,9 +10,10 @@ import './ProductForm.css';
 
 interface ProductFormProps {
   vendorId: number;
+  onProductSelect: (productId: number) => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ vendorId }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ vendorId, onProductSelect }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -172,10 +173,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ vendorId }) => {
                 <td>{p.unitofmeasurement || 'N/A'}</td>
                 <td>{p.productspecifications || 'N/A'}</td>
                 <td>{p.quantity ?? 0}</td>
-                <td>
-                  <button className="edit-btn" onClick={() => handleEdit(p)}>Edit</button>
-                  <button className="delete-btn" onClick={() => handleDelete(p.productid)}>Delete</button>
-                </td>
+<td>
+  <button className="orders-btn" onClick={() => onProductSelect(p.productid!)}>Orders</button>
+  <button className="edit-btn" onClick={() => handleEdit(p)}>Edit</button>
+  <button className="delete-btn" onClick={() => handleDelete(p.productid)}>Delete</button>
+</td>
               </tr>
             ))}
           </tbody>
