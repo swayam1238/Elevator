@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { VendorForm } from './Components/VendorForm';
+import { Ve } from './Components/VendorForm';
 import { ProductForm } from './Components/ProductForm';
-import { ProductList } from './Components/ProductList';
 
 const App = () => {
   const [vendorId, setVendorId] = useState<number | null>(null);
@@ -13,7 +12,7 @@ const App = () => {
       ) : (
         <>
           <ProductForm vendorId={vendorId} />
-          <ProductList vendorId={vendorId} />
+          
         </>
       )}
     </div>
