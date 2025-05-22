@@ -7,7 +7,9 @@ import {
   deleteVendor,
 } from '../services/supabaseCrud';
 
-const VendorManager: React.FC = () => {
+interface VendorFormProps { onVendorCreated: (vendorid: number) => void; }
+
+const VendorForm: React.FC<VendorFormProps> = ({ onVendorCreated }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,9 +31,9 @@ const VendorManager: React.FC = () => {
     try {
       const data = await getVendors();
       setVendors(data);
-    } catch (err) {
-      setError('Failed to load vendors');
-      console.error(err);
+    } catch (err: any) {
+      console.error('Supabase error (getVendors):', err);
+      setError(err.message || 'Failed to load vendors');
     }
     setLoading(false);
   };
@@ -46,8 +48,9 @@ const VendorManager: React.FC = () => {
     setError(null);
 
     try {
-      await createVendor(vendorForm);
+      const newVendor = await createVendor(vendorForm);
       alert('Vendor added!');
+      onVendorCreated(newVendor.vendorid!);
       setVendorForm({
         vendorname: '',
         email: '',
@@ -57,9 +60,9 @@ const VendorManager: React.FC = () => {
         gstnumber: '',
       });
       fetchVendors();
-    } catch (err) {
-      setError('Failed to add vendor');
-      console.error(err);
+    } catch (err: any) {
+      console.error('Supabase error (createVendor):', err);
+      setError(err.message || 'Failed to add vendor');
     }
   };
 
@@ -73,9 +76,9 @@ const VendorManager: React.FC = () => {
       await deleteVendor(vendorid);
       alert('Vendor deleted!');
       fetchVendors();
-    } catch (err) {
-      setError('Failed to delete vendor');
-      console.error(err);
+    } catch (err: any) {
+      console.error('Supabase error (deleteVendor):', err);
+      setError(err.message || 'Failed to delete vendor');
     }
   };
 
@@ -111,9 +114,9 @@ const VendorManager: React.FC = () => {
         gstnumber: '',
       });
       fetchVendors();
-    } catch (err) {
-      setError('Failed to update vendor');
-      console.error(err);
+    } catch (err: any) {
+      console.error('Supabase error (updateVendor):', err);
+      setError(err.message || 'Failed to update vendor');
     }
   };
 
@@ -199,4 +202,4 @@ const VendorManager: React.FC = () => {
   );
 };
 
-export default VendorManager;
+export default VendorForm;

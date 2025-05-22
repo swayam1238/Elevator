@@ -7,14 +7,15 @@ import {
   deleteProduct,
 } from '../services/supabaseCrud';
 
-interface Props {
-  vendorid: number;
+interface ProductFormProps {
+  vendorId: number;
 }
 
-const VendorProducts: React.FC<Props> = ({ vendorid }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ vendorId }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
   const [productForm, setProductForm] = useState<Omit<Product, 'productid'>>({
     productname: '',
@@ -22,19 +23,15 @@ const VendorProducts: React.FC<Props> = ({ vendorid }) => {
     unitofmeasurement: '',
     productspecifications: '',
     quantity: 0,
-    vendorid,
+    vendorid: vendorId,
   });
 
-  const [editingProductId, setEditingProductId] = useState<number | null>(null);
-
-  // Fetch products filtered by vendorid
   const fetchProducts = async () => {
     setLoading(true);
     setError(null);
     try {
-      const allProducts = await getProducts();
-      const filtered = allProducts.filter((p) => p.vendorid === vendorid);
-      setProducts(filtered);
+      const all = await getProducts();
+      setProducts(all.filter((p) => p.vendorid === vendorId));
     } catch (err) {
       setError('Failed to load products');
       console.error(err);
@@ -44,24 +41,27 @@ const VendorProducts: React.FC<Props> = ({ vendorid }) => {
 
   useEffect(() => {
     fetchProducts();
-  }, [vendorid]);
+  }, [vendorId]);
 
-  // Add product handler
-  const handleAddProduct = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setEditingProductId(null);
+    setProductForm({
+      productname: '',
+      productcategory: '',
+      unitofmeasurement: '',
+      productspecifications: '',
+      quantity: 0,
+      vendorid: vendorId,
+    });
+  };
+
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
     try {
       await createProduct(productForm);
       alert('Product added!');
-      setProductForm({
-        productname: '',
-        productcategory: '',
-        unitofmeasurement: '',
-        productspecifications: '',
-        quantity: 0,
-        vendorid,
-      });
+      resetForm();
       fetchProducts();
     } catch (err) {
       setError('Failed to add product');
@@ -69,14 +69,39 @@ const VendorProducts: React.FC<Props> = ({ vendorid }) => {
     }
   };
 
-  // Delete product handler
-  const handleDeleteProduct = async (productid?: number) => {
-    if (!productid) return;
-    setError(null);
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
+  const handleEdit = (prod: Product) => {
+    setEditingProductId(prod.productid ?? null);
+    setProductForm({
+      productname: prod.productname,
+      productcategory: prod.productcategory || '',
+      unitofmeasurement: prod.unitofmeasurement || '',
+      productspecifications: prod.productspecifications || '',
+      quantity: prod.quantity || 0,
+      vendorid: vendorId,
+    });
+  };
 
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProductId) return;
+    setError(null);
     try {
-      await deleteProduct(productid);
+      await updateProduct(editingProductId, productForm);
+      alert('Product updated!');
+      resetForm();
+      fetchProducts();
+    } catch (err) {
+      setError('Failed to update product');
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (id?: number) => {
+    if (!id) return;
+    if (!window.confirm('Delete this product?')) return;
+    setError(null);
+    try {
+      await deleteProduct(id);
       alert('Product deleted!');
       fetchProducts();
     } catch (err) {
@@ -85,105 +110,40 @@ const VendorProducts: React.FC<Props> = ({ vendorid }) => {
     }
   };
 
-  // Edit product handler (populate form)
-  const handleEditProduct = (product: Product) => {
-    setEditingProductId(product.productid ?? null);
-    setProductForm({
-      productname: product.productname,
-      productcategory: product.productcategory || '',
-      unitofmeasurement: product.unitofmeasurement || '',
-      productspecifications: product.productspecifications || '',
-      quantity: product.quantity || 0,
-      vendorid: product.vendorid,
-    });
-  };
-
-  // Update product handler
-  const handleUpdateProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingProductId) return;
-    setError(null);
-
-    try {
-      await updateProduct(editingProductId, productForm);
-      alert('Product updated!');
-      setEditingProductId(null);
-      setProductForm({
-        productname: '',
-        productcategory: '',
-        unitofmeasurement: '',
-        productspecifications: '',
-        quantity: 0,
-        vendorid,
-      });
-      fetchProducts();
-    } catch (err) {
-      setError('Failed to update product');
-      console.error(err);
-    }
-  };
-
   return (
     <div>
       <h2>{editingProductId ? 'Edit Product' : 'Add Product'}</h2>
-      <form onSubmit={editingProductId ? handleUpdateProduct : handleAddProduct}>
+      <form onSubmit={editingProductId ? handleUpdate : handleAdd}>
         <input
           placeholder="Product Name"
           value={productForm.productname}
           required
-          onChange={(e) =>
-            setProductForm({ ...productForm, productname: e.target.value })
-          }
+          onChange={(e) => setProductForm({ ...productForm, productname: e.target.value })}
         />
         <input
           placeholder="Category"
-          value={productForm.productcategory || ''}
-          onChange={(e) =>
-            setProductForm({ ...productForm, productcategory: e.target.value })
-          }
+          value={productForm.productcategory}
+          onChange={(e) => setProductForm({ ...productForm, productcategory: e.target.value })}
         />
         <input
           placeholder="Unit of Measurement"
-          value={productForm.unitofmeasurement || ''}
-          onChange={(e) =>
-            setProductForm({ ...productForm, unitofmeasurement: e.target.value })
-          }
+          value={productForm.unitofmeasurement}
+          onChange={(e) => setProductForm({ ...productForm, unitofmeasurement: e.target.value })}
         />
         <input
           placeholder="Specifications"
-          value={productForm.productspecifications || ''}
-          onChange={(e) =>
-            setProductForm({ ...productForm, productspecifications: e.target.value })
-          }
+          value={productForm.productspecifications}
+          onChange={(e) => setProductForm({ ...productForm, productspecifications: e.target.value })}
         />
         <input
           placeholder="Quantity"
           type="number"
           min={0}
-          value={productForm.quantity || 0}
-          onChange={(e) =>
-            setProductForm({ ...productForm, quantity: Number(e.target.value) })
-          }
+          value={productForm.quantity}
+          onChange={(e) => setProductForm({ ...productForm, quantity: Number(e.target.value) })}
         />
-        <button type="submit">{editingProductId ? 'Update Product' : 'Add Product'}</button>
-        {editingProductId && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditingProductId(null);
-              setProductForm({
-                productname: '',
-                productcategory: '',
-                unitofmeasurement: '',
-                productspecifications: '',
-                quantity: 0,
-                vendorid,
-              });
-            }}
-          >
-            Cancel
-          </button>
-        )}
+        <button type="submit">{editingProductId ? 'Update' : 'Add'}</button>
+        {editingProductId && <button type="button" onClick={resetForm}>Cancel</button>}
       </form>
 
       <h2>Your Products</h2>
@@ -194,13 +154,11 @@ const VendorProducts: React.FC<Props> = ({ vendorid }) => {
       <ul>
         {products.map((p) => (
           <li key={p.productid}>
-            <strong>{p.productname}</strong> — {p.productcategory || 'N/A'} —{' '}
-            {p.unitofmeasurement || 'N/A'} — Qty: {p.quantity ?? 0}
+            <strong>{p.productname}</strong> — {p.productcategory || 'N/A'} — {p.unitofmeasurement || 'N/A'} — Qty: {p.quantity ?? 0}
             <br />
             Specs: {p.productspecifications || 'N/A'}
             <br />
-            <button onClick={() => handleEditProduct(p)}>Edit</button>{' '}
-            <button onClick={() => handleDeleteProduct(p.productid)}>Delete</button>
+            <button onClick={() => handleEdit(p)}>Edit</button> <button onClick={() => handleDelete(p.productid)}>Delete</button>
           </li>
         ))}
       </ul>
@@ -208,4 +166,4 @@ const VendorProducts: React.FC<Props> = ({ vendorid }) => {
   );
 };
 
-export default VendorProducts;
+export default ProductForm;

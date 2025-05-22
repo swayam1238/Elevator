@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Ve } from './Components/VendorForm';
-import { ProductForm } from './Components/ProductForm';
+import VendorForm from './Components/VendorForm';
+import ProductForm from './Components/ProductForm';
 
 const App = () => {
   const [vendorId, setVendorId] = useState<number | null>(null);
