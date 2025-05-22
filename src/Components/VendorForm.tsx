@@ -210,7 +210,10 @@ const VendorForm: React.FC<VendorFormProps> = ({ onVendorCreated }) => {
                 <td>{v.bankdetails || 'N/A'}</td>
                 <td>{v.gstnumber || 'N/A'}</td>
                 <td>
+<<<<<<< HEAD
                   <button className="manage-btn" onClick={() => onVendorCreated(v.vendorid!)}>Products</button>
+=======
+>>>>>>> 70cdb594f3d15acd954acbdc52c1e031367bafd8
                   <button className="edit-btn" onClick={() => handleEditVendor(v)}>Edit</button>
                   <button className="delete-btn" onClick={() => handleDeleteVendor(v.vendorid)}>Delete</button>
                 </td>
