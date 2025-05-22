@@ -40,3 +40,19 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Back button for navigating from products to vendors */
+.back-btn {
+  display: inline-block;
+  margin: 1rem 0;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.back-btn:hover {
+  opacity: 0.9;
+}

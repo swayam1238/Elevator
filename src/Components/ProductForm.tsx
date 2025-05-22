@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct,
 } from '../services/supabaseCrud';
+import './ProductForm.css';
 
 interface ProductFormProps {
   vendorId: number;
@@ -113,7 +114,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ vendorId }) => {
   return (
     <div>
       <h2>{editingProductId ? 'Edit Product' : 'Add Product'}</h2>
-      <form onSubmit={editingProductId ? handleUpdate : handleAdd}>
+<form className="product-form" onSubmit={editingProductId ? handleUpdate : handleAdd}>
         <input
           placeholder="Product Name"
           value={productForm.productname}
@@ -148,20 +149,38 @@ const ProductForm: React.FC<ProductFormProps> = ({ vendorId }) => {
 
       <h2>Your Products</h2>
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       {!loading && products.length === 0 && <p>No products found.</p>}
 
-      <ul>
-        {products.map((p) => (
-          <li key={p.productid}>
-            <strong>{p.productname}</strong> — {p.productcategory || 'N/A'} — {p.unitofmeasurement || 'N/A'} — Qty: {p.quantity ?? 0}
-            <br />
-            Specs: {p.productspecifications || 'N/A'}
-            <br />
-            <button onClick={() => handleEdit(p)}>Edit</button> <button onClick={() => handleDelete(p.productid)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <div className="product-table-container">
+        <table className="product-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Unit</th>
+              <th>Specifications</th>
+              <th>Quantity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((p) => (
+              <tr key={p.productid}>
+                <td>{p.productname}</td>
+                <td>{p.productcategory || 'N/A'}</td>
+                <td>{p.unitofmeasurement || 'N/A'}</td>
+                <td>{p.productspecifications || 'N/A'}</td>
+                <td>{p.quantity ?? 0}</td>
+                <td>
+                  <button className="edit-btn" onClick={() => handleEdit(p)}>Edit</button>
+                  <button className="delete-btn" onClick={() => handleDelete(p.productid)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

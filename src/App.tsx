@@ -11,8 +11,10 @@ const App = () => {
         <VendorForm onVendorCreated={setVendorId} />
       ) : (
         <>
+          <button className="back-btn" onClick={() => setVendorId(null)}>
+            &larr; Back to Vendors
+          </button>
           <ProductForm vendorId={vendorId} />
-          
         </>
       )}
     </div>
