@@ -6,6 +6,7 @@ import {
   updateVendor,
   deleteVendor,
 } from '../services/supabaseCrud';
+import './VendorForm.css';
 
 interface VendorFormProps { onVendorCreated: (vendorid: number) => void; }
 
@@ -123,7 +124,7 @@ const VendorForm: React.FC<VendorFormProps> = ({ onVendorCreated }) => {
   return (
     <div>
       <h2>{editingVendorId ? 'Edit Vendor' : 'Add Vendor'}</h2>
-      <form onSubmit={editingVendorId ? handleUpdateVendor : handleAddVendor}>
+      <form className="vendor-form" onSubmit={editingVendorId ? handleUpdateVendor : handleAddVendor}>
         <input
           placeholder="Vendor Name"
           value={vendorForm.vendorname}
@@ -183,21 +184,40 @@ const VendorForm: React.FC<VendorFormProps> = ({ onVendorCreated }) => {
 
       <h2>Vendors List</h2>
       {loading && <p>Loading...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
       {!loading && vendors.length === 0 && <p>No vendors found.</p>}
 
-      <ul>
-        {vendors.map((v) => (
-          <li key={v.vendorid}>
-            <strong>{v.vendorname}</strong> — Email: {v.email || 'N/A'} — Phone: {v.phone || 'N/A'}
-            <br />
-            Address: {v.address || 'N/A'} — Bank: {v.bankdetails || 'N/A'} — GST: {v.gstnumber || 'N/A'}
-            <br />
-            <button onClick={() => handleEditVendor(v)}>Edit</button>{' '}
-            <button onClick={() => handleDeleteVendor(v.vendorid)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <div className="vendor-table-container">
+        <table className="vendor-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+              <th>Bank Details</th>
+              <th>GST Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vendors.map((v) => (
+              <tr key={v.vendorid}>
+                <td>{v.vendorname}</td>
+                <td>{v.email || 'N/A'}</td>
+                <td>{v.phone || 'N/A'}</td>
+                <td>{v.address || 'N/A'}</td>
+                <td>{v.bankdetails || 'N/A'}</td>
+                <td>{v.gstnumber || 'N/A'}</td>
+                <td>
+                  <button className="edit-btn" onClick={() => handleEditVendor(v)}>Edit</button>
+                  <button className="delete-btn" onClick={() => handleDeleteVendor(v.vendorid)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
